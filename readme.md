@@ -16,3 +16,6 @@ Install this plugin directly from Geneious by selecting Tools - Plugins from the
 
 ## More Information
 http://www.fos.auckland.ac.nz/~howardross/Software/SpDelim/
+
+## Citation
+Masters, B. C., V. Fan, and H. A. Ross. 2011. Species Delimitation - a Geneious plugin for the exploration of species boundaries. Molecular Ecology Resources 11:154-157.
