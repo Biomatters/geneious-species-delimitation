@@ -1,0 +1,96 @@
+<project name="SpeciesDelimitation" default="build-gplugin">
+
+	<!--
+	Author: Bruce Ashton
+	Date: 2007-11-28
+	Copyright (C): Biomatters Ltd
+
+	A template build file for Geneious plugins. A plugin (when installed) may
+	consist of a single jar file or a directory containing a number of jar
+	files and other resources. In the former case, the name of the jar file
+	must be the fully qualified name of the plugin class with a ".jar" suffix.
+	In the latter case the name of the directory must be the fully qualified
+	name of the plugin class.
+	-->
+
+	<!-- The following property should be set to the installation directory of
+	your copy of Geneious -->
+	<!-- <property name="geneious.dir" location="C:/Program Files/Geneious"/> --><!--(Windows) -->
+	<property name="geneious.dir" location="/Applications/Geneious.app/Contents/Resources/app"/>  <!-- (Mac) -->
+	<!--<property name="geneious.dir" location="/home/bruce/Geneious"/>   --><!-- (Linux) -->
+
+    <!--The plugin.properties file contains some important information required by Geneious-->
+    <property file="plugin.properties"/>
+    <property name="classes" location="bin"/>
+	<property name="src" location="src"/>
+
+	<!--
+	These three jars are the libraries that must be on the classpath when
+	developing any Geneious plugin. You will need to reference these in	the
+	project settings for your IDE also.
+	-->
+	<path id="classpath">
+		<fileset dir="${geneious.dir}/lib">
+			<include name="GeneiousPublicAPI.jar"/>
+			<include name="jebl.jar"/>
+			<include name="jdom.jar"/>
+		</fileset>
+		
+		
+	</path>
+
+	<target name="all" depends="clean, build-gplugin, install"/>
+
+	<!--
+	This target will work only if you have the permissions to write to the
+	plugins directory of your Geneious installation.
+	-->
+	<target name="install" depends="build-jar">
+		<copy file="${plugin-name}.jar" todir="${geneious.dir}/plugins/"/>
+	</target>
+
+	<!--
+	This target builds a gplugin file. This file can be	installed in Geneious
+	by dragging and dropping the file on a running Geneious application on
+	most operating systems.
+	-->
+	<target name="build-gplugin" depends="build-jar">
+        <delete dir="dist"/>
+        <mkdir dir="dist/${plugin-name}"/>
+        <copy file="${plugin-name}.jar" tofile="dist/${plugin-name}/${short-plugin-name}.jar"/>
+        <zip zipfile="${short-plugin-name}.gplugin">
+            <fileset dir="dist"/>
+        </zip>
+	</target>
+
+	<!--
+		This target builds the jar file. Installation can be as simple as copying
+		the jar file to plugins directory of your Geneious installation.
+	-->
+	
+	<target name="build-jar" depends="compile">
+		<jar destfile="${plugin-name}.jar">
+			<fileset dir="${classes}"/>
+            <fileset dir=".">
+                <include name="plugin.properties"/>
+            </fileset>
+		</jar>
+	</target>
+
+	<target name="compile"  depends="prepare">
+        <javac destdir="${classes}" debug="true" target="1.5">
+        		<classpath refid="classpath"/>
+        		<src path="${src}"/>
+        </javac>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${classes}"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${classes}"/>
+		<delete file="${plugin-name}.gplugin"/>
+		<delete file="${plugin-name}.jar"/>
+	</target>
+</project>
