@@ -11,5 +11,8 @@ allows users to assess putative species in phylogenetic trees. The plugin summar
 and diagnosability of species defined as user-selected collections of taxa, but it does not provide definitive support
 for species groups.
 
+## Installation
+Install this plugin directly from Geneious by selecting Tools - Plugins from the menu.
+
 ## More Information
 http://www.fos.auckland.ac.nz/~howardross/Software/SpDelim/
