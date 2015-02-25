@@ -12,9 +12,8 @@ import java.util.LinkedList;
 public class ColorChooser {
 	
 	private boolean[][][] colorGrid;
-	private Color[] preset;
-	private int presetsUsed=0;
 	private ArrayList<Color> colorList;
+
 	public ColorChooser(){
 		colorGrid = new boolean[256][256][256];
 		Color[] colors = colorGrid();
@@ -26,31 +25,26 @@ public class ColorChooser {
 	
 	public String getColor(){
 		if(colorList.size()>0){
-			int index = (int)(Math.random()*colorList.size()+1);
+			int index = (int)(Math.random()*colorList.size());
 			Color newColor = colorList.get(index);
 			colorList.remove(index);
 			int red = newColor.getRed();
 			int green = newColor.getGreen();
 			int blue = newColor.getBlue();
-			if(colorGrid[red][green][blue]==true){
+			if(colorGrid[red][green][blue]){
 				return getColor();
 			}
 			colorGrid[red][green][blue]=true;
 			return red+","+green+","+blue;
 		}else{
-			int preset1 = (int)(Math.random()*preset.length);
-			int preset2 = (int)(Math.random()*preset.length);
-			int red = (int)((preset[preset1].getRed()+preset[preset2].getRed())/2);
-			int green = (int)((preset[preset1].getGreen()+preset[preset2].getGreen())/2);
-			int blue = (int)((preset[preset1].getBlue()+preset[preset2].getBlue())/2);
-			if(colorGrid[red][green][blue]==false){
-				colorGrid[red][green][blue]=true;
-				presetsUsed++;
-				return red+","+green+","+blue;
-			}else{
+			int red = (int)(Math.random()*255);
+			int green = (int)(Math.random()*255);
+			int blue = (int)(Math.random()*255);
+			if(colorGrid[red][green][blue]){
 				return getColor();
 			}
-		}
+            return red+","+green+","+blue;
+        }
 	}
 	
 	public void removeColors(LinkedList<String> al){
