@@ -205,37 +205,33 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
     }
     
     public void selectionChanged(TreeSelectionChangeEvent treeChangeEvent) {
-    	selectedNodes=treeChangeEvent.getSelectedNodes(); 
-    	try{
-	    	if(internalFire==true && selectionSet!=null){
-		    	TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
-		    	if(selectionTreeNodeSet!=null){
-		    		if(resultsTable!=null && selectionSet.size()>1){
-		    			resultsTable.displayGroup(selectionTreeNodeSet.getIndex()-1);
-		    			groupList.setSelectedIndex(selectionTreeNodeSet.getIndex()-1);
-		    			//Change the Add Nodes button to a rename button for the selected set.
-		    			if(renameField!=null){
-		    				String displayName = selectionTreeNodeSet.getDisplayName();
-		    				if(displayName.equals(selectionTreeNodeSet.getIndex()+"")){
-		    					renameField.setText("");
-		    				}else{
-		    					renameField.setText(selectionTreeNodeSet.getDisplayName());
-		    				}
-		    			}
-		    			showAddSelection(false);
-		    			updateSets();
-		    		}	  
-		    	}else{
-		    		textDisplay("This selection is not a Species Group");
-		    		showAddSelection(true);
-		    	}
-	    	}
-	    	internalFire=true;
-    	}catch(Exception e){
-    		restart();
-    	}
+    	selectedNodes=treeChangeEvent.getSelectedNodes();
+        if(internalFire==true && selectionSet!=null){
+            TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
+            if(selectionTreeNodeSet!=null){
+                if(resultsTable!=null && selectionSet.size()>1){
+                    resultsTable.displayGroup(selectionTreeNodeSet.getIndex()-1);
+                    groupList.setSelectedIndex(selectionTreeNodeSet.getIndex()-1);
+                    //Change the Add Nodes button to a rename button for the selected set.
+                    if(renameField!=null){
+                        String displayName = selectionTreeNodeSet.getDisplayName();
+                        if(displayName.equals(selectionTreeNodeSet.getIndex()+"")){
+                            renameField.setText("");
+                        }else{
+                            renameField.setText(selectionTreeNodeSet.getDisplayName());
+                        }
+                    }
+                    showAddSelection(false);
+                    updateSets();
+                }
+            }else{
+                textDisplay("This selection is not a Species Group");
+                showAddSelection(true);
+            }
+        }
+        internalFire=true;
     }
-	
+
     private void showAddSelection(boolean showAdd){
     	if(showAdd){
     		//Show add selection
@@ -354,25 +350,21 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
 		groupList = new GComboBox(groups);
 		groupList.setVisible(false);
     	groupList.setForeground(new Color(25,25,25));
-    	groupList.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e) {
-        		try{
-        			int curIndex=groupList.getSelectedIndex();
-        			if(curIndex>-1){
-		        		TreeNodeSet curSet = selectionSet.getTreeNodeSet(curIndex);
-		        		fireSelectionChanged(new TreeSelectionChangeEvent(curSet.getNodes()));
-		        		groupList.setBackground(curSet.getColor());
-		        		groupList.setFocusable(false);       
-		        		groupList.setToolTipText(selectionSet.getTreeNodeSet(groupList.getSelectedIndex()).toTaxonNames(false));
-        			}else{
-        				groupList.setBackground(Color.WHITE);
-    	        		groupList.setFocusable(false);       
-        			}
-        		}catch(Exception exc){
-        			restart();
-        		}
-        	}
-		});
+        groupList.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                int curIndex=groupList.getSelectedIndex();
+                if(curIndex>-1){
+                    TreeNodeSet curSet = selectionSet.getTreeNodeSet(curIndex);
+                    fireSelectionChanged(new TreeSelectionChangeEvent(curSet.getNodes()));
+                    groupList.setBackground(curSet.getColor());
+                    groupList.setFocusable(false);
+                    groupList.setToolTipText(selectionSet.getTreeNodeSet(groupList.getSelectedIndex()).toTaxonNames(false));
+                }else{
+                    groupList.setBackground(Color.WHITE);
+                    groupList.setFocusable(false);
+                }
+            }
+        });
     	if(groups.length>0){
     		final ComboBoxRenderer renderer = new ComboBoxRenderer(selectionSet.getTreeNodeSets());
     		groupList.setRenderer(renderer);
@@ -437,36 +429,32 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
         c.gridx = 1;
         c.gridy = 0;
     	add.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e) {
-        		try{
-        			if(selectionSet!=null){
-        		        if(selectedNodes.size()>0){
-        		        	//Disable root and swap siblings
-	        				boolean alreadyInSet= selectionSet.contains(selectedNodes);
-		      				if(!alreadyInSet){
-		      					HashSet<Node> newGroup = new HashSet<Node>();
-		      					newGroup.addAll(selectedNodes);
-		      					selectedNodes.removeAll(selectionSet.allNodesInSet());
-	      						selectionSet.addSet(selectedNodes,name.getText());
-	      						name.setText("");
-	      						setUpFunctionResults();
-	      						updateSets();      						
-		      				}else{
-		      					textDisplay("Use only ungrouped nodes for new Groups.");
-		      				}
-		      				setUpFunctionRemove();
-		      				setUpFunctionResults();
-		      				if(!alreadyInSet){
-		      					internalFire=true;
-      							selectionChanged(new TreeSelectionChangeEvent(selectionSet.getLastSet().getNodes()));
-		      				}
-		      				
-	        			}
-	        		}
-        		}catch(Exception exc){
-        			restart();
-        		}
-        	}
+            public void actionPerformed(ActionEvent e) {
+                if(selectionSet!=null){
+                    if(selectedNodes.size()>0){
+                        //Disable root and swap siblings
+                        boolean alreadyInSet= selectionSet.contains(selectedNodes);
+                        if(!alreadyInSet){
+                            HashSet<Node> newGroup = new HashSet<Node>();
+                            newGroup.addAll(selectedNodes);
+                            selectedNodes.removeAll(selectionSet.allNodesInSet());
+                            selectionSet.addSet(selectedNodes,name.getText());
+                            name.setText("");
+                            setUpFunctionResults();
+                            updateSets();
+                        }else{
+                            textDisplay("Use only ungrouped nodes for new Groups.");
+                        }
+                        setUpFunctionRemove();
+                        setUpFunctionResults();
+                        if(!alreadyInSet){
+                            internalFire=true;
+                            selectionChanged(new TreeSelectionChangeEvent(selectionSet.getLastSet().getNodes()));
+                        }
+
+                    }
+                }
+            }
 
 			
 		});
@@ -494,28 +482,22 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
         c.gridy = 0;
         rename.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e) {
-        		try{
-	        		if(selectionSet!=null){
-	        			TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
-	        			if(selectionTreeNodeSet!=null){
-	        				selectionTreeNodeSet.setName(renameField.getText());
-	        				renameField.setText("");
-		      				setUpFunctionRemove();
-		      				setUpFunctionResults();	      				
-		      				fireTree(tree);
-		      				selectionSet.updateTreeNodeReferences();
-		      				internalFire=true;
-							selectionChanged(new TreeSelectionChangeEvent(selectionTreeNodeSet.getNodes()));
-		      				showAddSelection(false);
-	        			}
-	        		}
-        		}catch(Exception exc){
-        			restart(); 			
-        		}
-        	}
-
-			
-		});
+                if(selectionSet!=null){
+                    TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
+                    if(selectionTreeNodeSet!=null){
+                        selectionTreeNodeSet.setName(renameField.getText());
+                        renameField.setText("");
+                        setUpFunctionRemove();
+                        setUpFunctionResults();
+                        fireTree(tree);
+                        selectionSet.updateTreeNodeReferences();
+                        internalFire=true;
+                        selectionChanged(new TreeSelectionChangeEvent(selectionTreeNodeSet.getNodes()));
+                        showAddSelection(false);
+                    }
+                }
+            }
+        });
     	functionRename.add(rename,c);
     	functionRename.setPreferredSize(new Dimension(functionRename.getPreferredSize().width,functionRename.getPreferredSize().height));
   
