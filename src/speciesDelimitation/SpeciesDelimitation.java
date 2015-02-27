@@ -435,8 +435,6 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
                         //Disable root and swap siblings
                         boolean alreadyInSet= selectionSet.contains(selectedNodes);
                         if(!alreadyInSet){
-                            HashSet<Node> newGroup = new HashSet<Node>();
-                            newGroup.addAll(selectedNodes);
                             selectedNodes.removeAll(selectionSet.allNodesInSet());
                             selectionSet.addSet(selectedNodes,name.getText());
                             name.setText("");
@@ -449,7 +447,10 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
                         setUpFunctionResults();
                         if(!alreadyInSet){
                             internalFire=true;
-                            selectionChanged(new TreeSelectionChangeEvent(selectionSet.getLastSet().getNodes()));
+                            TreeNodeSet lastSet = selectionSet.getLastSet();
+                            if (lastSet != null) {
+                                selectionChanged(new TreeSelectionChangeEvent(lastSet.getNodes()));
+                            }
                         }
 
                     }
@@ -590,14 +591,6 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
 	public void addResultsToTree(ArrayList<String> results){
 		for(int i=0; i<selectionSet.size(); i++){
 			selectionSet.getTreeNodeSet(i).setDelimitationResult(results.get(i));
-		}
-		Tree newTree=Utils.copyTree(Utils.rootTheTree(tree));
-		fireTreeChanged(new TreeChangeEvent(newTree));
-	}
-	
-	public void removeResultsFromTree(){
-		for(int i=0; i<selectionSet.size(); i++){
-			selectionSet.getTreeNodeSet(i).removeDelimitationResult();
 		}
 		Tree newTree=Utils.copyTree(Utils.rootTheTree(tree));
 		fireTreeChanged(new TreeChangeEvent(newTree));
