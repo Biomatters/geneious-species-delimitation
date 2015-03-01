@@ -53,7 +53,7 @@ public class SpeciesDelimitationPlugin extends GeneiousPlugin {
     }
 
     public String getVersion() {
-        return "1.4.3";
+        return "1.4.4";
     }
 
     public String getMinimumApiVersion() {
