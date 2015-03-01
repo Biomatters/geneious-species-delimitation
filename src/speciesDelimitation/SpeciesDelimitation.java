@@ -206,30 +206,36 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
     
     public void selectionChanged(TreeSelectionChangeEvent treeChangeEvent) {
     	selectedNodes=treeChangeEvent.getSelectedNodes();
-        if(internalFire==true && selectionSet!=null){
-            TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
-            if(selectionTreeNodeSet!=null){
-                if(resultsTable!=null && selectionSet.size()>1){
-                    resultsTable.displayGroup(selectionTreeNodeSet.getIndex()-1);
-                    groupList.setSelectedIndex(selectionTreeNodeSet.getIndex()-1);
-                    //Change the Add Nodes button to a rename button for the selected set.
-                    if(renameField!=null){
-                        String displayName = selectionTreeNodeSet.getDisplayName();
-                        if(displayName.equals(selectionTreeNodeSet.getIndex()+"")){
-                            renameField.setText("");
-                        }else{
-                            renameField.setText(selectionTreeNodeSet.getDisplayName());
-                        }
-                    }
-                    showAddSelection(false);
-                    updateSets();
-                }
-            }else{
-                textDisplay("This selection is not a Species Group");
-                showAddSelection(true);
-            }
-        }
-        internalFire=true;
+    	try{
+	    	if(internalFire==true && selectionSet!=null){
+		    	TreeNodeSet selectionTreeNodeSet = selectionSet.selectionAsExisitingTNS(selectedNodes);
+		    	if(selectionTreeNodeSet!=null){
+		    		if(resultsTable!=null && selectionSet.size()>1){
+		    			resultsTable.displayGroup(selectionTreeNodeSet.getIndex()-1);
+		    			groupList.setSelectedIndex(selectionTreeNodeSet.getIndex()-1);
+		    			//Change the Add Nodes button to a rename button for the selected set.
+		    			if(renameField!=null){
+		    				String displayName = selectionTreeNodeSet.getDisplayName();
+		    				if(displayName.equals(selectionTreeNodeSet.getIndex()+"")){
+		    					renameField.setText("");
+		    				}else{
+		    					renameField.setText(selectionTreeNodeSet.getDisplayName());
+		    				}
+		    			}
+		    			showAddSelection(false);
+		    			updateSets();
+		    		}
+		    	}else{
+		    		textDisplay("This selection is not a Species Group");
+		    		showAddSelection(true);
+		    	}
+	    	}
+	    	internalFire=true;
+    	} catch(Exception e) {
+            //this is really gross, but it is quite hard to fix properly
+            e.printStackTrace();
+    		restart();
+    	}
     }
 
     private void showAddSelection(boolean showAdd){
@@ -402,12 +408,11 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
 		
 	public void restart(){
 		loaded=false; 				
-		fireTree(tree);
 		fireSelectionChanged(new TreeSelectionChangeEvent(new HashSet<Node>()));
 		updateSets();
 		setUpFunctionRemove();
 		setUpFunctionResults();
-		
+
 	}
 	
 	private void setUpFunctionAdd() {
