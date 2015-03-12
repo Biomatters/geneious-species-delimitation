@@ -186,7 +186,7 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
 				}
 			}
 			if(loaded){
-				selectionSet = new SelectionSet(this);	        		
+				selectionSet = new SelectionSet(this);
 				if(selectionSet.size()>0){
 					setUpFunctionRemove();
 					setUpFunctionResults();
@@ -234,7 +234,6 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
     	} catch(Exception e) {
             //this is really gross, but it is quite hard to fix properly
             e.printStackTrace();
-    		restart();
     	}
     }
 
