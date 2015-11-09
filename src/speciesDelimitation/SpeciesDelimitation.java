@@ -6,31 +6,25 @@
 /************************************************************/
 package speciesDelimitation;
 
+import com.biomatters.geneious.publicapi.components.*;
+import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.plugin.DocumentViewer;
 import com.biomatters.geneious.publicapi.plugin.TreeViewerExtension;
-import com.biomatters.geneious.publicapi.components.DefaultHyperlinkListener;
-import com.biomatters.geneious.publicapi.components.Dialogs;
-import com.biomatters.geneious.publicapi.components.GButton;
-import com.biomatters.geneious.publicapi.components.GComboBox;
-import com.biomatters.geneious.publicapi.components.GPanel;
-import com.biomatters.geneious.publicapi.components.GTextArea;
-import com.biomatters.geneious.publicapi.components.GTextPane;
-import com.biomatters.geneious.publicapi.documents.*;
-import javax.swing.*;
-import jebl.evolution.trees.*;
 import jebl.evolution.graphs.Node;
+import jebl.evolution.trees.Tree;
+import jebl.evolution.trees.TreeChangeEvent;
+import jebl.evolution.trees.TreeSelectionChangeEvent;
 import jebl.evolution.trees.Utils;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+
+import javax.swing.*;
 import java.awt.*;
-import java.util.Collection;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.lang.Runnable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class SpeciesDelimitation extends TreeViewerExtension implements Runnable{
@@ -260,7 +254,7 @@ public class SpeciesDelimitation extends TreeViewerExtension implements Runnable
 		setUpFunctionAdd();
 		setUpFunctionRemove();
 		setUpFunctionReset();
-		setUpFunctionResults();
+//		setUpFunctionResults();
 		setUpFunctionSave();	
 		setUpFunctionRename();
 		setUpFunctionReload();
