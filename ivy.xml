@@ -1,0 +1,15 @@
+<ivy-module version="1.0">
+    <info organisation="com.biomatters" module="coiled-coils-plugin"/>
+
+    <configurations>
+        <conf name="build" description="For building the plugin."/>
+        <conf name="test" description="For running tests.  Includes the Geneious runtime and test environment."/>
+    </configurations>
+
+    <dependencies>
+        <dependency org="com.biomatters" name="geneious.publicapi" rev="7.0.5" conf="build->api; test->runtime"/>
+
+        <!-- For tests -->
+        <dependency org="junit" name="junit" rev="4.11" conf="build,test->default"/>
+    </dependencies>
+</ivy-module>

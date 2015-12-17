@@ -1,4 +1,4 @@
-<project name="SpeciesDelimitation" default="build-gplugin">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="SpeciesDelimitation" default="build-gplugin">
 
 	<!--
 	Author: Bruce Ashton
@@ -30,22 +30,22 @@
 	project settings for your IDE also.
 	-->
 	<path id="classpath">
-		<fileset dir="${geneious.dir}/lib">
-			<include name="GeneiousPublicAPI.jar"/>
-			<include name="jebl.jar"/>
-			<include name="jdom.jar"/>
-		</fileset>
-		
-		
+		<fileset dir="lib"/>
 	</path>
 
-	<!-- hook to enable the geneious build to build this plugin -->
-	<target name="geneious-build">
-		<!-- The "target-to-run" property should be set in the subant call to this target. -->
-		<ant antfile="../../build-opensource-plugins.xml" target="${target-to-run}">
-			<reference refid="geneious.classpath.test"/>
-			<reference refid="geneious.classpath"/>
-		</ant>
+	<!-- setup reference to the Ivy Ant tasks library -->
+	<path id="ivy.lib.path">
+		<fileset dir="tools" includes="ivy*.jar" />
+	</path>
+
+
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+
+	<!-- load ivy settings -->
+	<ivy:settings file="ivysettings.xml" id="biocode.ivy.config" />
+
+	<target name="retrieve-build-dependencies" description="Retrieve dependencies with ivy">
+		<ivy:retrieve conf="build" settingsref="biocode.ivy.config" pattern="lib/[artifact]-[type]-[revision].[ext]"/>
 	</target>
 
 	<target name="all" depends="clean, build-gplugin, install"/>
@@ -86,7 +86,7 @@
 		</jar>
 	</target>
 
-	<target name="compile"  depends="prepare">
+	<target name="compile"  depends="prepare, retrieve-build-dependencies">
         <javac destdir="${classes}" debug="true" target="1.5">
         		<classpath refid="classpath"/>
         		<src path="${src}"/>
