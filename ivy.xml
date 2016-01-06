@@ -1,5 +1,5 @@
 <ivy-module version="1.0">
-    <info organisation="com.biomatters" module="coiled-coils-plugin"/>
+    <info organisation="com.biomatters" module="species-delimitation-plugin"/>
 
     <configurations>
         <conf name="build" description="For building the plugin."/>
