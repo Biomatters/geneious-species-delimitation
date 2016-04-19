@@ -15,23 +15,33 @@
 
 	<property file="plugin.properties"/>
 
-	<property name="build" location="build"/>
-	<property name="classes" location="classes"/>
-	<property name="lib" location="lib"/>
-	<property name="resources" location="resources"/>
-	<property name="src" location="src"/>
-	<property name="test.src" location="test"/>
-	<property name="test.classes" location="testclasses"/>
-	<property name="test-data" location="testdata"/>
-	<property name="report" location="report"/>
-	<property name="GeneiousFiles" location="GeneiousFiles"/>
-	<condition property="test.exists">
+    <property name="build" location="build"/>
+    <property name="classes" location="classes"/>
+    <property name="lib" location="lib"/>
+    <property name="resources" location="resources"/>
+    <property name="src" location="src"/>
+    <property name="test.src" location="test"/>
+    <property name="integration.src" location="test-integration"/>
+    <property name="testdata.src" location="testdata"/>
+    <property name="build.test" location="${build}/test${short-plugin-name}"/>
+    <property name="test.classes" location="${build.test}/test"/>
+    <property name="test.integration" location="${build.test}/testIntegration"/>
+    <property name="test.data" location="${build.test}/testdata"/>
+    <property name="report" location="report"/>
+    <property name="GeneiousFiles" location="GeneiousFiles"/>
+    <condition property="tests.exist">
 		<available file="test" type="dir"/>
 	</condition>
 
-	<path id="classpath">
-		<fileset dir="${lib}"/>
-	</path>
+    <path id="classpath">
+        <fileset dir="${lib}"/>
+    </path>
+
+    <path id="classpath.test">
+        <path refid="classpath"/>
+        <pathelement location="${classes}"/>
+    </path>
+
 
 	<!-- hook to enable the geneious build to build this plugin -->
 	<target name="geneious-build">
@@ -42,109 +52,127 @@
 		</ant>
 	</target>
 
-	<target name= "create-plugin" depends="build-plugin">
-		<zip zipfile="${build}/${short-plugin-name}.gplugin">
-			<fileset dir="${build}">
-				<include name="${plugin-name}/**/*"/>
-			</fileset>
-		</zip>
-		<copy file="${build}/${short-plugin-name}.gplugin" todir="${build}/../../downloads"/>
-	</target>
+    <target name= "create-plugin" depends="build-plugin">
+        <zip zipfile="${build}/${short-plugin-name}.gplugin">
+            <fileset dir="${build}">
+               <include name="${plugin-name}/**/*"/>
+                <exclude name="test*/**/*" /> <!-- exlude all test classes and data -->
+            </fileset>
+        </zip>
+    </target>
 
-	<target name="build-plugin" depends="clean,compile-plugin">
-		<jar jarfile="${build}/${plugin-name}.jar">
-			<fileset dir="${classes}"/>
-		</jar>
-		<mkdir dir="${build}/${plugin-name}"/>
-		<copy todir="${build}/${plugin-name}">
-			<fileset dir="${build}">
-				<include name="${plugin-name}.jar"/>
-			</fileset>
-			<fileset dir="lib">
-				<include name="*.jar"/>
-				<!-- Exclude Javadoc and sources from build -->
-				<exclude name="*-sources.jar"/>
-				<exclude name="*-javadoc.jar"/>
-				<!-- Exclude the Geneious Public API libraries because they are available at runtime -->
-				<exclude name="GeneiousPublicAPI*.jar"/>
-				<exclude name="jdom*.jar"/>
-				<exclude name="jebl*.jar"/>
-				<!--Exclude test libs, not needed at runtime-->
-				<exclude name="junit*.jar"/>
-				<exclude name="hamcrest*.jar"/>
-			</fileset>
-		</copy>
+    <target name="build-plugin" depends="clean,compile-plugin">
+        <jar jarfile="${build}/${plugin-name}.jar">
+            <fileset dir="${classes}"/>
+        </jar>
+        <mkdir dir="${build}/${plugin-name}"/>
+        <copy todir="${build}/${plugin-name}">
+            <fileset dir="${build}">
+                <include name="${plugin-name}.jar"/>
+                <exclude name="test*/**/*"/>
+            </fileset>
+            <fileset dir="lib">
+                <include name="*.jar"/>
+                <!-- Exclude Javadoc and sources from build -->
+                <exclude name="*-sources.jar"/>
+                <exclude name="*-javadoc.jar"/>
+                <!-- Exclude the Geneious Public API libraries because they are available at runtime -->
+                <exclude name="GeneiousPublicAPI*.jar"/>
+                <exclude name="jdom*.jar"/>
+                <exclude name="jebl*.jar"/>
+                <!--Exclude test libs, not needed at runtime-->
+                <exclude name="junit*.jar"/>
+                <exclude name="hamcrest*.jar"/>
+            </fileset>
+        </copy>
+    </target>
 
-	</target>
+    <target name="compile-plugin" depends="prepare,retrieve-build-dependencies">
+        <echo message="Compiling ${plugin-name}"/>
 
-	<target name="compile-plugin" depends="prepare,retrieve-build-dependencies">
-		<javac target="1.6" source="1.6" destdir="${classes}" debug="true">
-			<classpath refid="classpath"/>
-			<src path="${src}"/>
-		</javac>
-	</target>
+        <javac target="1.6" source="1.6" destdir="${classes}" debug="true">
+            <classpath refid="classpath"/>
+            <src path="${src}"/>
+        </javac>
 
-	<target name="prepare">
-		<mkdir dir="${build}"/>
-		<mkdir dir="${classes}"/>
-		<mkdir dir="${test.classes}"/>
-		<mkdir dir="${report}"/>
-		<mkdir dir="${lib}"/>
-	</target>
+        <ant target="compile-tests"/>
 
-	<target name="clean">
-		<delete dir="${lib}"/>
-		<delete dir="${build}"/>
-		<delete dir="${classes}"/>
-		<delete dir="${test.classes}"/>
-		<delete dir="${report}"/>
-		<delete dir="${GeneiousFiles}"/>
-		<delete file="GeneiousFiles.zip"/>
-	</target>
+        <available file="${integration.src}" type="dir" property="integration.tests.exist"/>
+        <ant target="compile-integration-tests"/>
 
+        <copy todir="${test.data}" failonerror="false">
+        <fileset dir="${testdata.src}"/>
+        </copy>
+    </target>
 
-	<target name="compile-tests" depends="compile-plugin" if="test.exists">
-		<javac target="1.6" source="1.6" destdir="${test.classes}" debug="true">
-			<classpath>
-				<path refid="classpath"/>
-				<pathelement location="${classes}"/>
-			</classpath>
-			<src path="${test.src}"/>
-		</javac>
-	</target>
+    <target name="compile-tests" if="tests.exist">
+        <javac target="1.6" source="1.6" destdir="${test.classes}" debug="true">
+            <classpath refid="classpath.test"/>
+            <src path="${test.src}"/>
+        </javac>
+    </target>
 
+    <target name="compile-integration-tests" if="integration.tests.exist">
+        <javac target="1.6" source="1.6" destdir="${test.integration}" debug="true">
+            <classpath refid="classpath.test"/>
+            <src path="${integration.src}"/>
+        </javac>
+    </target>
 
-	<target name="test" depends="compile-tests, retrieve-test-runtime-dependencies" if="test.exists">
+    <target name="prepare">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${test.classes}"/>
+        <mkdir dir="${test.integration}"/>
+        <mkdir dir="${test.data}"/>
+        <mkdir dir="${report}"/>
+        <mkdir dir="${lib}"/>
+    </target>
 
-		<junit dir="GeneiousFiles" fork="true" maxmemory="1024M" printsummary="on" timeout="180000">
-			<batchtest todir="${report}">
-				<fileset dir="${test.classes}">
-					<include name="**/*Test.class"/>
-				</fileset>
-			</batchtest>
-			<classpath>
-				<path refid="classpath"/>
-				<file file="${GeneiousFiles}/iSeek.jar"/>
-				<fileset dir="${GeneiousFiles}/lib"/>
-				<pathelement location="${classes}"/>
-				<pathelement location="${resources}"/>
-				<pathelement location="${test.classes}"/>
-				<pathelement location="${GeneiousFiles}/resources"/>
-				<pathelement location="${GeneiousFiles}/bundledPlugins"/>
-			</classpath>
-			<env key="DISPLAY" value=":0.0"/>
-			<env key="DYLD_LIBRARY_PATH" value="/Library/Application Support/Geneious/Frameworks"/>
-			<formatter type="xml"/>
-			<jvmarg value="-Xms256M"/>
-			<jvmarg value="-ea"/>
-			<jvmarg value="-XX:MaxNewSize=40M"/>
-			<jvmarg value="-XX:MaxPermSize=256M"/>
-			<jvmarg value="-XX:ReservedCodeCacheSize=128m"/>
-			<jvmarg value="-Xss512K"/>
-			<sysproperty key="report.dir" value="${report}"/>
-			<sysproperty key="user.dir" value="${build}"/>
-		</junit>
-	</target>
+    <target name="clean">
+        <delete dir="${lib}"/>
+        <delete dir="${build}"/>
+        <delete dir="${classes}"/>
+        <delete dir="${report}"/>
+        <delete dir="${GeneiousFiles}"/>
+        <delete file="GeneiousFiles.zip"/>
+    </target>
+
+    <target name="test" depends="compile-plugin, retrieve-test-runtime-dependencies" if="tests.exist">
+        <junit dir="GeneiousFiles" fork="true" maxmemory="1024M" printsummary="on" timeout="180000">
+            <batchtest todir="${report}">
+            <fileset dir="${test.classes}">
+               <include name="**/*Test.class"/>
+            </fileset>
+            </batchtest>
+            <classpath>
+                <file file="${GeneiousFiles}/iSeek.jar"/>
+                <fileset dir="${GeneiousFiles}/lib"/>
+                <pathelement location="${classes}"/>
+                <pathelement location="${resources}"/>
+                <pathelement location="${test.classes}"/>
+                <pathelement location="${testdata.src}"/>
+                <pathelement location="${GeneiousFiles}/resources"/>
+                <!--<pathelement location="${GeneiousFiles}/bundledPlugins"/>-->
+                <fileset dir="${GeneiousFiles}/bundledPlugins">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <path refid="classpath"/>
+            </classpath>
+            <env key="DISPLAY" value=":0.0"/>
+            <env key="DYLD_LIBRARY_PATH" value="/Library/Application Support/Geneious/Frameworks"/>
+            <formatter type="xml"/>
+            <jvmarg value="-Xms256M"/>
+            <jvmarg value="-ea"/>
+            <jvmarg value="-XX:MaxNewSize=40M"/>
+            <jvmarg value="-XX:MaxPermSize=256M"/>
+            <jvmarg value="-XX:ReservedCodeCacheSize=128m"/>
+            <jvmarg value="-Xss512K"/>
+            <sysproperty key="report.dir" value="${report}"/>
+            <sysproperty key="user.dir" value="${build}"/>
+        </junit>
+    </target>
 
 
 	<!-- setup reference to the Ivy Ant tasks library -->
@@ -165,7 +193,7 @@
 	<condition property="GeneiousFiles.exists">
 		<available file="${GeneiousFiles}" type="dir"/>
 	</condition>
-	<target name="retrieve-test-runtime-dependencies" description="Retrieve the Geneious runtime for running the tests" unless="GeneiousFiles.exists" if="test.exists">
+	<target name="retrieve-test-runtime-dependencies" description="Retrieve the Geneious runtime for running the tests" unless="GeneiousFiles.exists" if="tests.exist">
 		<ivy:retrieve conf="test" type="resource" settingsref="biocode.ivy.config" pattern="${basedir}/[artifact].[ext]"/>
 		<unzip src="GeneiousFiles.zip" dest="."/>
 	</target>
