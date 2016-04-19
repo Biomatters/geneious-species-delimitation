@@ -42,16 +42,6 @@
         <pathelement location="${classes}"/>
     </path>
 
-
-	<!-- hook to enable the geneious build to build this plugin -->
-	<target name="geneious-build">
-		<!-- The "target-to-run" property should be set in the subant call to this target. -->
-		<ant antfile="../../build-opensource-plugins.xml" target="${target-to-run}">
-			<reference refid="geneious.classpath.test"/>
-			<reference refid="geneious.classpath"/>
-		</ant>
-	</target>
-
     <target name= "create-plugin" depends="build-plugin">
         <zip zipfile="${build}/${short-plugin-name}.gplugin">
             <fileset dir="${build}">
@@ -145,6 +135,9 @@
             <fileset dir="${test.classes}">
                <include name="**/*Test.class"/>
             </fileset>
+            <fileset dir="${test.integration}">
+                <include name="**/*Test.class"/>
+            </fileset>
             </batchtest>
             <classpath>
                 <file file="${GeneiousFiles}/iSeek.jar"/>
@@ -152,6 +145,7 @@
                 <pathelement location="${classes}"/>
                 <pathelement location="${resources}"/>
                 <pathelement location="${test.classes}"/>
+                <pathelement location="${test.integration}"/>
                 <pathelement location="${testdata.src}"/>
                 <pathelement location="${GeneiousFiles}/resources"/>
                 <!--<pathelement location="${GeneiousFiles}/bundledPlugins"/>-->
