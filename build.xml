@@ -84,25 +84,24 @@
             <classpath refid="classpath"/>
             <src path="${src}"/>
         </javac>
-
-        <ant target="compile-tests"/>
-
-        <available file="${integration.src}" type="dir" property="integration.tests.exist"/>
-        <ant target="compile-integration-tests"/>
-
-        <copy todir="${test.data}" failonerror="false">
-        <fileset dir="${testdata.src}"/>
-        </copy>
     </target>
 
-    <target name="compile-tests" if="tests.exist">
+    <condition property="tests.exists">
+        <available file="${test.src}" type="dir"/>
+    </condition>
+
+    <target name="compile-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="tests.exist">
         <javac target="1.6" source="1.6" destdir="${test.classes}" debug="true">
             <classpath refid="classpath.test"/>
             <src path="${test.src}"/>
         </javac>
     </target>
 
-    <target name="compile-integration-tests" if="integration.tests.exist">
+    <condition property="integration.tests.exist">
+        <available file="${integration.src}" type="dir"/>
+    </condition>
+
+    <target name="compile-integration-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="integration.tests.exist">
         <javac target="1.6" source="1.6" destdir="${test.integration}" debug="true">
             <classpath refid="classpath.test"/>
             <src path="${integration.src}"/>
@@ -122,22 +121,25 @@
 
     <target name="clean">
         <delete dir="${lib}"/>
+        <delete dir="${report}"/>
         <delete dir="${build}"/>
         <delete dir="${classes}"/>
-        <delete dir="${report}"/>
         <delete dir="${GeneiousFiles}"/>
         <delete file="GeneiousFiles.zip"/>
     </target>
 
-    <target name="test" depends="compile-plugin, retrieve-test-runtime-dependencies" if="tests.exist">
+    <target name="test" depends="compile-tests, compile-integration-tests">
+        <copy todir="${test.data}" failonerror="false">
+            <fileset dir="${testdata.src}"/>
+        </copy>
         <junit dir="GeneiousFiles" fork="true" maxmemory="1024M" printsummary="on" timeout="180000">
             <batchtest todir="${report}">
-            <fileset dir="${test.classes}">
-               <include name="**/*Test.class"/>
-            </fileset>
-            <fileset dir="${test.integration}">
-                <include name="**/*Test.class"/>
-            </fileset>
+                <fileset dir="${test.classes}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+                <fileset dir="${test.integration}">
+                    <include name="**/*Test.class"/>
+                </fileset>
             </batchtest>
             <classpath>
                 <file file="${GeneiousFiles}/iSeek.jar"/>
@@ -167,7 +169,6 @@
             <sysproperty key="user.dir" value="${build}"/>
         </junit>
     </target>
-
 
 	<!-- setup reference to the Ivy Ant tasks library -->
 	<path id="ivy.lib.path">
