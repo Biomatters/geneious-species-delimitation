@@ -29,9 +29,6 @@
     <property name="test.data" location="${build.test}/testdata"/>
     <property name="report" location="report"/>
     <property name="GeneiousFiles" location="GeneiousFiles"/>
-    <condition property="tests.exist">
-		<available file="test" type="dir"/>
-	</condition>
 
     <path id="classpath">
         <fileset dir="${lib}"/>
@@ -90,18 +87,18 @@
         <available file="${test.src}" type="dir"/>
     </condition>
 
-    <target name="compile-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="tests.exist">
+    <target name="compile-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="tests.exists">
         <javac target="1.6" source="1.6" destdir="${test.classes}" debug="true">
             <classpath refid="classpath.test"/>
             <src path="${test.src}"/>
         </javac>
     </target>
 
-    <condition property="integration.tests.exist">
+    <condition property="integration.tests.exists">
         <available file="${integration.src}" type="dir"/>
     </condition>
 
-    <target name="compile-integration-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="integration.tests.exist">
+    <target name="compile-integration-tests" depends="compile-plugin, retrieve-test-runtime-dependencies" if="integration.tests.exists">
         <javac target="1.6" source="1.6" destdir="${test.integration}" debug="true">
             <classpath refid="classpath.test"/>
             <src path="${integration.src}"/>
@@ -188,7 +185,7 @@
 	<condition property="GeneiousFiles.exists">
 		<available file="${GeneiousFiles}" type="dir"/>
 	</condition>
-	<target name="retrieve-test-runtime-dependencies" description="Retrieve the Geneious runtime for running the tests" unless="GeneiousFiles.exists" if="tests.exist">
+	<target name="retrieve-test-runtime-dependencies" description="Retrieve the Geneious runtime for running the tests" unless="GeneiousFiles.exists" if="tests.exists">
 		<ivy:retrieve conf="test" type="resource" settingsref="biocode.ivy.config" pattern="${basedir}/[artifact].[ext]"/>
 		<unzip src="GeneiousFiles.zip" dest="."/>
 	</target>
