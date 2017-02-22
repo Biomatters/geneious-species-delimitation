@@ -6,33 +6,24 @@
 package speciesDelimitation;
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import com.biomatters.geneious.publicapi.components.GComboBox;
+import com.biomatters.geneious.publicapi.components.GPanel;
+import jebl.evolution.graphs.Node;
+import jebl.evolution.trees.RootedTree;
+import jebl.evolution.trees.RootedTreeUtils;
+import jebl.evolution.trees.Tree;
+import jebl.evolution.trees.TreeSelectionChangeEvent;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashSet;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-
-import jebl.evolution.graphs.Node;
-import jebl.evolution.trees.*;
-
-import com.biomatters.geneious.publicapi.components.GComboBox;
-import com.biomatters.geneious.publicapi.components.GPanel;
-import java.math.*;
 
 public class ResultsTable{
 	private String[][] results;
@@ -212,7 +203,7 @@ public class ResultsTable{
 			TreeNodeSet putative = set.get(i);
 			results[i+1][0] = putative.getName();
 			double intraSpecificDist = putative.intraSpecificDist(geneticDistances);
-			interSpecificDist(putative);	
+			interSpecificDist(putative);
 			results[i+1][1] = closest.getName();
 //			results[i+1][2] = putative.getPhyly();
 			if(RootedTreeUtils.isMonophyletic((RootedTree) sd.getTree(), putative.getLeafNodes())){
@@ -222,7 +213,7 @@ public class ResultsTable{
 				results[i+1][2] = "no";
 			}
 			results[i+1][3] = ""+truncate(intraSpecificDist,3);
-			results[i+1][4] = truncate(closestDist,3); 
+			results[i+1][4] = truncate(closestDist,3);
 			double intraInterRatio = intraInterRatio(intraSpecificDist);
 			results[i+1][5] = truncate(intraInterRatio,2);
 			int n = putative.getNumIndividuals();
@@ -237,7 +228,7 @@ public class ResultsTable{
 			String probCorIdupper =  truncate(probCorrectIDStrictUpper(intraInterRatio,n),2);
 			probCorId+=probCorIdupper;
 			probCorId+=")";
-			results[i+1][6] = probCorId;	
+			results[i+1][6] = probCorId;
 
 			probCorId =  truncate(probCorrectIDLiberal(intraInterRatio,n),2);
 			if(probCorId.equals("1.0")){
@@ -250,7 +241,7 @@ public class ResultsTable{
 			probCorIdupper =  truncate(probCorrectIDLiberalUpper(intraInterRatio,n),2);
 			probCorId+=probCorIdupper;
 			probCorId+=")";
-			results[i+1][7] =probCorId;	
+			results[i+1][7] =probCorId;
 
 			results[i+1][8] = truncate(MRCA(putative),4);
 			double m = (MRCA(putative)/ancestorToRootPath(putative));
@@ -284,7 +275,7 @@ public class ResultsTable{
 			}else{
 				results[i+1][10] = "NA";
 			}
-			
+
 			//Rosenberg's P(AB)
 			if(RootedTreeUtils.isMonophyletic((RootedTree) sd.getTree(), putative.getLeafNodes())){
 //			if(putative.getPhyly().equals("Monophyletic")){
@@ -304,7 +295,7 @@ public class ResultsTable{
 						
 		
 			}catch(Exception e){
-				for(int j=0; i<COL_SIZE; j++){
+				for(int j=0; j<COL_SIZE; j++){
 					results[i+1][j]="";
 				}
 				
